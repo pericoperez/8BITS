@@ -18,6 +18,12 @@ let shakeUntil = 0;
 let muted = false;
 let lastListKey = '';
 
+// En Vercel indica la URL wss:// del servidor Render en config.js.
+// Tambi\u00e9n puede pasarse temporalmente con ?server=https://tu-servidor.onrender.com
+const query = new URLSearchParams(location.search);
+const configuredServer = query.get('server') || window.BATTLE_CONFIG?.webSocketUrl || '';
+const hostKey = query.get('host') || '';
+
 // ------------------------------------------------------------
 //  Sonido 8 bits (WebAudio, sin archivos)
 // ------------------------------------------------------------
@@ -60,8 +66,14 @@ function send(obj) {
 }
 
 function connect() {
-  ws = new WebSocket(`ws://${location.host}`);
-  ws.onopen = () => { $('#offline').hidden = true; };
+  let endpoint = configuredServer.trim();
+  if (!endpoint) endpoint = location.origin;
+  endpoint = endpoint.replace(/^http:/i, 'ws:').replace(/^https:/i, 'wss:');
+  ws = new WebSocket(endpoint);
+  ws.onopen = () => {
+    $('#offline').hidden = true;
+    send({ t: 'hello', hostKey });
+  };
   ws.onmessage = e => {
     const m = JSON.parse(e.data);
     if (m.t === 'welcome') onWelcome(m);
@@ -86,12 +98,9 @@ function onWelcome(m) {
 
   const list = $('#addrList');
   list.replaceChildren();
-  const ips = m.ips.length ? m.ips : [location.hostname];
-  for (const ip of ips) {
-    const d = document.createElement('div');
-    d.textContent = `${ip}:${m.port}`;
-    list.appendChild(d);
-  }
+  const d = document.createElement('div');
+  d.textContent = location.origin;
+  list.appendChild(d);
 
   $('#hostPanel').hidden = !isHost;
   if (isHost) {

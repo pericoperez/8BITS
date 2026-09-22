@@ -1,5 +1,6 @@
 node_modules/
 .claude/
+.vercel/
 
 # Runtime logs
 npm-debug.log*

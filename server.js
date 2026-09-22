@@ -26,6 +26,9 @@ const ZONE_DELAY = 25000;           // la zona empieza a cerrarse a los 25 s
 const ZONE_SHRINK = 60000;          // tarda 60 s en cerrarse del todo
 const ZONE_DMG_EVERY = 1500;        // fuera de la zona pierdes 1 vida cada 1,5 s
 const NAME_MAX = 12;
+// En producci\u00f3n, solo quien conozca esta clave puede abrir una partida.
+// Config\u00farala como variable de entorno en Render, nunca en el repositorio.
+const HOST_KEY = process.env.HOST_KEY || '';
 
 // Paleta tipo 8 bits para los jugadores
 const COLORS = [
@@ -293,24 +296,41 @@ const wss = new WebSocketServer({ server, maxPayload: 1024 });
 
 wss.on('connection', (ws, req) => {
   const addr = req.socket.remoteAddress || '';
-  const isHost = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addr);
+  const isLocalHost = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addr);
   const p = {
-    id: nextId++, ws, name: '', joined: false, isHost,
+    id: nextId++, ws, name: '', joined: false, isHost: false,
     color: COLORS[colorIdx++ % COLORS.length],
     x: 0, y: 0, angle: 0, hp: 0, ammo: 0, alive: false, inGame: false, kills: 0,
     lastShot: 0, lastZoneHit: 0, input: { u: false, d: false, l: false, r: false },
   };
   players.set(p.id, p);
 
-  ws.send(JSON.stringify({
-    t: 'welcome', id: p.id, isHost, ips: lanIPs(), port: PORT,
-    map: MAP, tile: TILE, maxShots: MAX_SHOTS, maxHp: MAX_HP,
-  }));
+  let welcomed = false;
+  const welcome = () => {
+    if (welcomed) return;
+    welcomed = true;
+    ws.send(JSON.stringify({
+      t: 'welcome', id: p.id, isHost: p.isHost, ips: lanIPs(), port: PORT,
+      map: MAP, tile: TILE, maxShots: MAX_SHOTS, maxHp: MAX_HP,
+    }));
+  };
+
+  // Clientes actuales env\u00edan "hello" enseguida. El fallback mantiene
+  // compatibilidad con clientes anteriores, que simplemente entran como alumnos.
+  const fallbackWelcome = setTimeout(welcome, 1000);
 
   ws.on('message', raw => {
     let m;
     try { m = JSON.parse(raw); } catch { return; }
     if (!m || typeof m !== 'object') return;
+
+    if (m.t === 'hello') {
+      p.isHost = isLocalHost || (!!HOST_KEY && m.hostKey === HOST_KEY);
+      clearTimeout(fallbackWelcome);
+      welcome();
+      return;
+    }
+    if (!welcomed) return;
 
     switch (m.t) {
       case 'join':
@@ -338,6 +358,7 @@ wss.on('connection', (ws, req) => {
   });
 
   ws.on('close', () => {
+    clearTimeout(fallbackWelcome);
     if (p.joined) console.log(`  - ${p.name} se ha desconectado`);
     if (p.inGame && p.alive && phase === 'playing') {
       events.push({ k: 'kill', killer: 'desconexión', victim: p.name, id: p.id });

@@ -1,22 +1,57 @@
 # 8 BITS BATTLE
 
-Juego de 8 bits para el aula en el que todos luchan contra todos y solo puede quedar uno. El equipo del profesor hace de servidor y los alumnos se conectan por WebSockets desde el navegador.
+Juego multijugador de aula: todos luchan y solo puede quedar uno.
 
-## Arrancar (equipo del profesor)
-1. Doble clic en `INICIAR.bat` (o ejecuta `npm install` y después `npm start`).
-2. Se abre `http://localhost:3000`: es el **panel del profesor**. Tu IP sale arriba a la derecha.
-3. Los alumnos abren en su navegador `http://TU_IP:3000`, escriben su nombre y pulsan **¡A LUCHAR!**
-4. Cuando estén todos, pulsa **EMPEZAR PARTIDA**.
+## Desarrollo local
 
-La primera vez, Windows pedirá permiso en el firewall para Node.js: marca **Redes privadas** y acepta.
+Instala las dependencias una vez y arranca el servidor:
 
-## Reglas
-- 3 vidas y **10 tiros como máximo** por partida.
-- A los 25 s la zona roja empieza a cerrarse, y fuera de ella pierdes vida. Así la partida siempre termina, aunque todos se queden sin balas.
-- Gana el último que siga vivo. Luego se vuelve a la sala para jugar otra partida.
+```bash
+npm install
+npm run dev
+```
 
-## Controles
-WASD/flechas para moverte · ratón para apuntar · clic o espacio para disparar · M para el sonido
+Abre `http://localhost:3000`. El primer navegador abierto desde el mismo equipo es el panel del profesor; los demás dispositivos de la red local entran con la IP que muestra la consola. `INICIAR.bat` sigue disponible como acceso directo para Windows, pero ejecuta el mismo servidor.
 
-## Ajustes
-Están al principio de `server.js`: `MAX_SHOTS`, `MAX_HP`, `SPEED`, `ZONE_DELAY`, `PORT` y el mapa (`MAP`).
+## Publicarlo para jugar desde cualquier red
+
+El juego necesita conexiones WebSocket persistentes y una memoria de partida compartida. Por eso se despliega en dos servicios:
+
+| Servicio | Dónde | Función |
+| --- | --- | --- |
+| Cliente (`public/`) | Vercel | URL pública, rápida y accesible por todos |
+| `server.js` | Render Web Service | Partida, jugadores y WebSocket seguro (`wss://`) |
+
+### 1. Servidor de partida en Render
+
+1. En [Render](https://dashboard.render.com/), crea **New > Blueprint** y selecciona este repositorio de GitHub.
+2. Render detectará `render.yaml`. Antes de crear el servicio, define una clave larga para `HOST_KEY` (guárdala: no se publica en GitHub).
+3. Cuando termine, copia la URL del servicio, por ejemplo `https://8bits-battle-api.onrender.com`.
+
+### 2. Cliente público en Vercel
+
+1. En `public/config.js`, sustituye el valor vacío por la URL segura del servicio Render:
+
+```js
+window.BATTLE_CONFIG = { websocketUrl: 'wss://8bits-battle-api.onrender.com' };
+```
+
+2. Haz commit y push de ese cambio.
+3. En [Vercel](https://vercel.com/new), importa `pericoperez/8BITS`. La configuración del repositorio ya indica que debe publicar `public/` y que el comando de desarrollo es `npm run dev`.
+4. Comparte la URL `https://...vercel.app` que te entregue Vercel. Cualquier persona puede abrirla y jugar desde cualquier red.
+
+### Abrir una partida como profesor
+
+Comparte la URL de Vercel normal con el alumnado. El profesor abre la misma URL añadiendo la clave privada:
+
+```text
+https://tu-juego.vercel.app/?host=TU_HOST_KEY
+```
+
+No compartas esa versión del enlace: quien tenga la clave puede pulsar **EMPEZAR PARTIDA**. El alumnado solo necesita la URL limpia.
+
+> En el plan gratuito de Render, el servidor se duerme tras 15 minutos sin tráfico. La primera conexión posterior puede tardar alrededor de un minuto; durante una partida activa los mensajes WebSocket lo mantienen despierto.
+
+## Configuración del juego
+
+Al principio de `server.js`: `MAX_SHOTS`, `MAX_HP`, `SPEED`, `ZONE_DELAY`, `PORT` y el mapa (`MAP`).
