@@ -26,14 +26,14 @@ El juego necesita conexiones WebSocket persistentes y una memoria de partida com
 
 1. En [Render](https://dashboard.render.com/), crea **New > Blueprint** y selecciona este repositorio de GitHub.
 2. Render detectará `render.yaml`. Antes de crear el servicio, define una clave larga para `HOST_KEY` (guárdala: no se publica en GitHub).
-3. Cuando termine, copia la URL del servicio, por ejemplo `https://8bits-battle-api.onrender.com`.
+3. Cuando termine, copia la URL del servicio, por ejemplo `https://eightbits-cj9p.onrender.com`.
 
 ### 2. Cliente público en Vercel
 
 1. En `public/config.js`, sustituye el valor vacío por la URL segura del servicio Render:
 
 ```js
-window.BATTLE_CONFIG = { websocketUrl: 'wss://8bits-battle-api.onrender.com' };
+window.BATTLE_CONFIG = { websocketUrl: 'wss://eightbits-cj9p.onrender.com' };
 ```
 
 2. Haz commit y push de ese cambio.
