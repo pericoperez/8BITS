@@ -21,7 +21,7 @@ let lastListKey = '';
 // En Vercel indica la URL wss:// del servidor Render en config.js.
 // Tambi\u00e9n puede pasarse temporalmente con ?server=https://tu-servidor.onrender.com
 const query = new URLSearchParams(location.search);
-const configuredServer = query.get('server') || window.BATTLE_CONFIG?.webSocketUrl || '';
+const configuredServer = query.get('server') || window.BATTLE_CONFIG?.websocketUrl || '';
 const hostKey = query.get('host') || '';
 
 // ------------------------------------------------------------
