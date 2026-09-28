@@ -116,12 +116,7 @@ function onWelcome(m) {
   playerUrl.searchParams.delete('host');
   playerUrl.searchParams.delete('server');
   playerUrl.hash = '';
-  if (isHost) {
-    addShareLink(list, 'ENLACE ADMINISTRADOR', location.href);
-    addShareLink(list, 'ENLACE PARA JUGADORES', playerUrl.href);
-  } else {
-    addShareLink(list, 'ENLACE PARA JUGADORES', playerUrl.href);
-  }
+  addShareLink(list, 'ENLACE PARA JUGADORES', playerUrl.href);
 
   $('#hostPanel').hidden = !isHost;
   if (isHost) {
