@@ -153,6 +153,13 @@ canvas {
   word-break: break-all;
   margin-top: 6px;
 }
+.addr #addrList .addr-label {
+  color: #ffec27;
+  font-size: 9px;
+  line-height: 1.7;
+}
+.addr #addrList a { color: var(--green); }
+.addr #addrList a:hover { color: #ffec27; }
 
 #hostPanel { display: flex; flex-direction: column; gap: 10px; }
 #hostJoinForm { display: flex; gap: 8px; }

@@ -87,6 +87,20 @@ function connect() {
   };
 }
 
+function addShareLink(container, label, href) {
+  const item = document.createElement('div');
+  const caption = document.createElement('div');
+  caption.className = 'addr-label';
+  caption.textContent = label;
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = href;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  item.append(caption, link);
+  container.appendChild(item);
+}
+
 function onWelcome(m) {
   myId = m.id;
   isHost = m.isHost;
@@ -98,9 +112,16 @@ function onWelcome(m) {
 
   const list = $('#addrList');
   list.replaceChildren();
-  const d = document.createElement('div');
-  d.textContent = location.origin;
-  list.appendChild(d);
+  const playerUrl = new URL(location.href);
+  playerUrl.searchParams.delete('host');
+  playerUrl.searchParams.delete('server');
+  playerUrl.hash = '';
+  if (isHost) {
+    addShareLink(list, 'ENLACE ADMINISTRADOR', location.href);
+    addShareLink(list, 'ENLACE PARA JUGADORES', playerUrl.href);
+  } else {
+    addShareLink(list, 'ENLACE PARA JUGADORES', playerUrl.href);
+  }
 
   $('#hostPanel').hidden = !isHost;
   if (isHost) {
