@@ -23,6 +23,9 @@ let lastListKey = '';
 const query = new URLSearchParams(location.search);
 const configuredServer = query.get('server') || window.BATTLE_CONFIG?.websocketUrl || '';
 const hostKey = query.get('host') || '';
+if (location.pathname === '/' && !hostKey) {
+  history.replaceState(null, '', `/jugador${location.search}${location.hash}`);
+}
 
 // ------------------------------------------------------------
 //  Sonido 8 bits (WebAudio, sin archivos)
