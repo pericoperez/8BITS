@@ -297,7 +297,7 @@ const wss = new WebSocketServer({ server, maxPayload: 1024 });
 
 wss.on('connection', (ws, req) => {
   const addr = req.socket.remoteAddress || '';
-  const isLocalHost = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addr);
+  const isLocalHost = process.env.RENDER !== 'true' && ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addr);
   const p = {
     id: nextId++, ws, name: '', joined: false, isHost: false,
     color: COLORS[colorIdx++ % COLORS.length],
