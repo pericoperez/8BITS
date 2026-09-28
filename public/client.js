@@ -118,10 +118,15 @@ function onWelcome(m) {
   playerUrl.searchParams.set('modo', 'jugador');
   playerUrl.hash = '';
   const isLocalDev = !configuredServer && ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
-  if (isLocalDev && m.ips?.length) {
-    playerUrl.protocol = 'http:';
-    playerUrl.hostname = m.ips[0];
-    playerUrl.port = m.port;
+  if (isLocalDev) {
+    playerUrl.pathname = '/';
+    if (m.ips?.length) {
+      playerUrl.protocol = 'http:';
+      playerUrl.hostname = m.ips[0];
+      playerUrl.port = m.port;
+    }
+  } else {
+    playerUrl.pathname = '/jugador';
   }
   addShareLink(list, 'ENLACE PARA JUGADORES', playerUrl.href);
 
