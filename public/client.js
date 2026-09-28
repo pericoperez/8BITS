@@ -116,6 +116,12 @@ function onWelcome(m) {
   playerUrl.searchParams.delete('host');
   playerUrl.searchParams.delete('server');
   playerUrl.hash = '';
+  const isLocalDev = !configuredServer && ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
+  if (isLocalDev && m.ips?.length) {
+    playerUrl.protocol = 'http:';
+    playerUrl.hostname = m.ips[0];
+    playerUrl.port = m.port;
+  }
   addShareLink(list, 'ENLACE PARA JUGADORES', playerUrl.href);
 
   $('#hostPanel').hidden = !isHost;
