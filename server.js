@@ -276,6 +276,7 @@ function snapshot() {
 // ---------- Servidor HTTP (sirve el cliente) ----------
 const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
+  '/jugador': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/client.js': ['client.js', 'text/javascript; charset=utf-8'],
   '/style.css': ['style.css', 'text/css; charset=utf-8'],

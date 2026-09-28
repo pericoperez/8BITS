@@ -115,7 +115,6 @@ function onWelcome(m) {
   const playerUrl = new URL(location.href);
   playerUrl.searchParams.delete('host');
   playerUrl.searchParams.delete('server');
-  playerUrl.searchParams.set('modo', 'jugador');
   playerUrl.hash = '';
   const isLocalDev = !configuredServer && ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
   if (isLocalDev) {

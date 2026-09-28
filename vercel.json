@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "public",
-  "devCommand": "npm run dev",`r`n  "rewrites": [{ "source": "/jugador", "destination": "/index.html" }]
+  "devCommand": "npm run dev",
+  "rewrites": [
+    { "source": "/jugador", "destination": "/index.html" }
+  ]
 }
